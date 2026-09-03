@@ -1,12 +1,25 @@
 @baseUrl = http://localhost:5078
-# Note: Run sell-household-policy.http or sell-buytolet-policy.http first to set policyReference
+# Note: This flow uses the development policy POL-RENEW-DEMO for testing renewal functionality
 
 ### Renew a Policy
-POST {{baseUrl}}/api/policies/{{policyReference}}/renewals
+< {%
+    const today = new Date();
+    const renewalStartDate = new Date(today);
+    renewalStartDate.setDate(renewalStartDate.getDate() + 30);
+    const renewalEndDate = new Date(renewalStartDate);
+    renewalEndDate.setFullYear(renewalEndDate.getFullYear() + 1);
+
+    const formatDate = (date) => date.toISOString().split('T')[0];
+
+    request.variables.set("renewalStartDate", formatDate(renewalStartDate));
+    request.variables.set("renewalEndDate", formatDate(renewalEndDate));
+%}
+
+POST {{baseUrl}}/api/policies/POL-RENEW-DEMO/renewals
 Content-Type: application/json
 
 {
-  "StartDate": "2025-01-01",
-  "EndDate": "2026-01-01",
+  "StartDate": "{{renewalStartDate}}",
+  "EndDate": "{{renewalEndDate}}",
   "Amount": 525.00
 }

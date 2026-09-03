@@ -433,8 +433,10 @@ components:
           uniqueItems: true
           items:
             type: string
+            format: uuid
         AddressId:
           type: string
+          format: uuid
         Payment:
           $ref: "#/components/schemas/Payment"
 
@@ -466,8 +468,10 @@ components:
           uniqueItems: true
           items:
             type: string
+            format: uuid
         AddressId:
           type: string
+          format: uuid
         Payment:
           $ref: "#/components/schemas/Payment"
 

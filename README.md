@@ -5,18 +5,19 @@ A .NET 10 ASP.NET Core Web API implementing an insurance domain with household a
 ## Prerequisites
 
 - .NET 10 SDK
-- An IDE that supports .NET (Visual Studio, VS Code, etc.)
+- JetBrains Rider or another .NET-compatible IDE
 
 ## Building the Solution
 
 ```bash
+dotnet restore InsureApi.sln
 dotnet build InsureApi.sln
 ```
 
 ## Running the API
 
 ```bash
-dotnet run --project InsureApi
+dotnet run --project InsureApi.csproj --launch-profile http
 ```
 
 The API will be available at `http://localhost:5078`
@@ -24,12 +25,12 @@ The API will be available at `http://localhost:5078`
 ## Running Tests
 
 ```bash
-dotnet test InsureApi.Tests
+dotnet test InsureApi.sln
 ```
 
 ## Using the HTTP Flows
 
-The solution includes HTTP flow files in the `HttpFlows` directory for testing the API endpoints. These files use the REST Client extension in VS Code or similar tools.
+The solution includes HTTP flow files in the `HttpFlows` directory for testing the API endpoints. These files use JetBrains Rider's built-in HTTP Client.
 
 ### Flow Dependencies
 
@@ -41,13 +42,20 @@ Some flows depend on variables set by previous flows. Run them in this order:
 4. **sell-buytolet-policy.http** - Creates a customer, address, and sells a buy-to-let policy (sets `policyReference`)
 5. **policy-management.http** - Retrieves policy details, payments, and refunds (requires `policyReference`)
 6. **policy-cancellation.http** - Calculates cancellation quotes and cancels policies (requires `policyReference`)
-7. **policy-renewal.http** - Renews policies (requires `policyReference`)
+7. **policy-renewal.http** - Renews policies independently using the development policy `POL-RENEW-DEMO`
 
 ### Running HTTP Flows
 
-1. Open an HTTP flow file in VS Code
-2. Click "Send Request" above each request
-3. Variables are automatically extracted from responses and used in subsequent requests
+1. Keep the API running using the HTTP launch profile
+2. Open an HTTP flow file in Rider
+3. Click the run icon next to each request to execute it
+4. Variables are automatically extracted from responses and used in subsequent requests
+
+### Flow Sequence
+
+- Run either selling flow (sell-household-policy.http or sell-buytolet-policy.http) to create a policy and set the `policyReference` variable
+- Run policy management or cancellation using the generated `policyReference`
+- Run renewal independently against the development policy `POL-RENEW-DEMO` (does not depend on a selling flow)
 
 ## API Endpoints
 

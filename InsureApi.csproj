@@ -23,9 +23,4 @@
       <None Remove="Tests\**\*" />
     </ItemGroup>
 
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="InsureApi.Tests\obj\InsureApi.Tests.csproj.nuget.dgspec.json" />
-      <_ContentIncludedByDefault Remove="InsureApi.Tests\obj\project.assets.json" />
-    </ItemGroup>
-
 </Project>

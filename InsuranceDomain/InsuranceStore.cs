@@ -32,8 +32,8 @@ public sealed class InsuranceStore
     public void SeedDevelopmentData(TimeProvider timeProvider)
     {
         DateOnly today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
-        DateOnly startDate = today.AddDays(-335);
         DateOnly endDate = today.AddDays(30);
+        DateOnly startDate = endDate.AddYears(-1);
 
         Guid customerId = Guid.Parse("11111111-1111-1111-1111-111111111111");
         Guid addressId = Guid.Parse("22222222-2222-2222-2222-222222222222");

@@ -5,6 +5,6 @@ public sealed record SellBuyToLetPolicyRequest(
     DateOnly EndDate,
     decimal Amount,
     bool AutoRenew,
-    IReadOnlyCollection<string> CustomerIds,
-    string AddressId,
+    IReadOnlyCollection<Guid> CustomerIds,
+    Guid AddressId,
     PaymentRequest Payment);

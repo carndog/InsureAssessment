@@ -19,8 +19,8 @@ public sealed class HouseholdPoliciesController(SellPolicyService service) : Con
             request.EndDate,
             request.Amount,
             request.AutoRenew,
-            request.CustomerIds.Select(Guid.Parse).ToArray(),
-            Guid.Parse(request.AddressId),
+            request.CustomerIds.ToArray(),
+            request.AddressId,
             request.Payment.PaymentReference,
             request.Payment.Type,
             request.Payment.Amount);

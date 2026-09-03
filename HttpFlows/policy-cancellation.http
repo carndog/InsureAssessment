@@ -2,19 +2,31 @@
 # Note: Run sell-household-policy.http or sell-buytolet-policy.http first to set policyReference
 
 ### Step 1: Calculate Cancellation Quote
+< {%
+    const today = new Date();
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    request.variables.set("cancellationDate", formatDate(today));
+%}
+
 POST {{baseUrl}}/api/policies/{{policyReference}}/cancellation-quotes
 Content-Type: application/json
 
 {
-  "CancellationDate": "2024-06-15"
+  "CancellationDate": "{{cancellationDate}}"
 }
 
 ###
 
 ### Step 2: Cancel the Policy
+< {%
+    const today = new Date();
+    const formatDate = (date) => date.toISOString().split('T')[0];
+    request.variables.set("cancellationDate", formatDate(today));
+%}
+
 PUT {{baseUrl}}/api/policies/{{policyReference}}/cancellation
 Content-Type: application/json
 
 {
-  "CancellationDate": "2024-06-15"
+  "CancellationDate": "{{cancellationDate}}"
 }
