@@ -1,0 +1,12 @@
+@baseUrl = http://localhost:5078
+# Note: Run sell-household-policy.http or sell-buytolet-policy.http first to set policyReference
+
+### Renew a Policy
+POST {{baseUrl}}/api/policies/{{policyReference}}/renewals
+Content-Type: application/json
+
+{
+  "StartDate": "2025-01-01",
+  "EndDate": "2026-01-01",
+  "Amount": 525.00
+}

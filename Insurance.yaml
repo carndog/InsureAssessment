@@ -1,0 +1,556 @@
+openapi: 3.0.3
+
+info:
+  title: Insurance API
+  version: 1.0.0
+
+tags:
+  - name: Customers
+  - name: Addresses
+  - name: Household Policies
+  - name: BuyToLet Policies
+  - name: Policies
+  - name: Payments
+  - name: Refunds
+  - name: Policy Administration
+
+paths:
+  /api/customers:
+    post:
+      tags: [Customers]
+      summary: Create a Customer
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCustomerRequest"
+      responses:
+        "201":
+          description: Customer created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        "400":
+          description: Invalid request
+
+  /api/customers/{customerId}:
+    get:
+      tags: [Customers]
+      summary: Retrieve a Customer
+      operationId: getCustomer
+      parameters:
+        - $ref: "#/components/parameters/CustomerId"
+      responses:
+        "200":
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Customer"
+        "404":
+          description: Customer not found
+
+  /api/customers/{customerId}/policies:
+    get:
+      tags: [Customers]
+      summary: Retrieve a Customer's Policies
+      operationId: getCustomerPolicies
+      parameters:
+        - $ref: "#/components/parameters/CustomerId"
+        - name: includeLapsed
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        "200":
+          description: Policies found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Policy"
+        "404":
+          description: Customer not found
+
+  /api/addresses:
+    post:
+      tags: [Addresses]
+      summary: Create an Address
+      operationId: createAddress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAddressRequest"
+      responses:
+        "201":
+          description: Address created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Address"
+        "400":
+          description: Invalid request
+
+  /api/addresses/{addressId}:
+    get:
+      tags: [Addresses]
+      summary: Retrieve an Address
+      operationId: getAddress
+      parameters:
+        - $ref: "#/components/parameters/AddressId"
+      responses:
+        "200":
+          description: Address found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Address"
+        "404":
+          description: Address not found
+
+  /api/policies/households:
+    post:
+      tags: [Household Policies]
+      summary: Sell a Household Policy
+      operationId: sellHouseholdPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SellHouseholdPolicyRequest"
+      responses:
+        "201":
+          description: Household Policy sold
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Policy"
+        "400":
+          description: Invalid request
+        "404":
+          description: Customer or Address not found
+
+  /api/policies/buytolet:
+    post:
+      tags: [BuyToLet Policies]
+      summary: Sell a BuyToLet Policy
+      operationId: sellBuyToLetPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SellBuyToLetPolicyRequest"
+      responses:
+        "201":
+          description: BuyToLet Policy sold
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Policy"
+        "400":
+          description: Invalid request
+        "404":
+          description: Customer or Address not found
+
+  /api/policies/{uniqueReference}:
+    get:
+      tags: [Policies]
+      summary: Retrieve a Policy
+      operationId: getPolicy
+      parameters:
+        - $ref: "#/components/parameters/UniqueReference"
+      responses:
+        "200":
+          description: Policy found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Policy"
+        "404":
+          description: Policy not found
+
+  /api/policies/{uniqueReference}/payments:
+    get:
+      tags: [Payments]
+      summary: Retrieve Payments for a Policy
+      operationId: getPolicyPayments
+      parameters:
+        - $ref: "#/components/parameters/UniqueReference"
+      responses:
+        "200":
+          description: Payments found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+        "404":
+          description: Policy not found
+
+  /api/policies/{uniqueReference}/refunds:
+    get:
+      tags: [Refunds]
+      summary: Retrieve Refunds for a Policy
+      operationId: getPolicyRefunds
+      parameters:
+        - $ref: "#/components/parameters/UniqueReference"
+      responses:
+        "200":
+          description: Refunds found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Refund"
+        "404":
+          description: Policy not found
+
+  /api/policies/{uniqueReference}/cancellation-quotes:
+    post:
+      tags: [Policy Administration]
+      summary: Calculate the cost of cancelling a Policy
+      operationId: calculatePolicyCancellation
+      parameters:
+        - $ref: "#/components/parameters/UniqueReference"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalculateCancellationRequest"
+      responses:
+        "200":
+          description: Cancellation calculated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CancellationQuote"
+        "404":
+          description: Policy not found
+        "409":
+          description: Policy cannot be cancelled
+
+  /api/policies/{uniqueReference}/cancellation:
+    put:
+      tags: [Policy Administration]
+      summary: Cancel a Policy
+      operationId: cancelPolicy
+      parameters:
+        - $ref: "#/components/parameters/UniqueReference"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelPolicyRequest"
+      responses:
+        "200":
+          description: Policy cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Refund"
+        "404":
+          description: Policy not found
+        "409":
+          description: Policy cannot be cancelled
+
+  /api/policies/{uniqueReference}/renewals:
+    post:
+      tags: [Policy Administration]
+      summary: Renew a Policy
+      operationId: renewPolicy
+      parameters:
+        - $ref: "#/components/parameters/UniqueReference"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenewPolicyRequest"
+      responses:
+        "201":
+          description: Policy renewed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Policy"
+        "404":
+          description: Policy not found
+        "409":
+          description: Policy cannot be renewed
+
+components:
+  parameters:
+    CustomerId:
+      name: customerId
+      in: path
+      required: true
+      schema:
+        type: string
+
+    AddressId:
+      name: addressId
+      in: path
+      required: true
+      schema:
+        type: string
+
+    UniqueReference:
+      name: uniqueReference
+      in: path
+      required: true
+      schema:
+        type: string
+
+  schemas:
+    CreateCustomerRequest:
+      type: object
+      required:
+        - FirstName
+        - LastName
+        - DateOfBirth
+      properties:
+        FirstName:
+          type: string
+        LastName:
+          type: string
+        DateOfBirth:
+          type: string
+          format: date
+
+    Customer:
+      allOf:
+        - $ref: "#/components/schemas/CreateCustomerRequest"
+        - type: object
+          required:
+            - CustomerId
+          properties:
+            CustomerId:
+              type: string
+
+    CreateAddressRequest:
+      type: object
+      required:
+        - AddressLine1
+        - Postcode
+      properties:
+        AddressLine1:
+          type: string
+        AddressLine2:
+          type: string
+          nullable: true
+        AddressLine3:
+          type: string
+          nullable: true
+        Postcode:
+          type: string
+          maxLength: 8
+
+    Address:
+      allOf:
+        - $ref: "#/components/schemas/CreateAddressRequest"
+        - type: object
+          required:
+            - AddressId
+          properties:
+            AddressId:
+              type: string
+
+    Policy:
+      type: object
+      required:
+        - UniqueReference
+        - StartDate
+        - EndDate
+        - Amount
+        - HasClaims
+        - AutoRenew
+        - CustomerIds
+        - AddressId
+      properties:
+        UniqueReference:
+          type: string
+        StartDate:
+          type: string
+          format: date
+        EndDate:
+          type: string
+          format: date
+        Amount:
+          type: number
+        HasClaims:
+          type: boolean
+        AutoRenew:
+          type: boolean
+        CustomerIds:
+          type: array
+          minItems: 1
+          maxItems: 3
+          uniqueItems: true
+          items:
+            type: string
+        AddressId:
+          type: string
+
+    SellHouseholdPolicyRequest:
+      type: object
+      required:
+        - StartDate
+        - EndDate
+        - Amount
+        - AutoRenew
+        - CustomerIds
+        - AddressId
+        - Payment
+      properties:
+        StartDate:
+          type: string
+          format: date
+        EndDate:
+          type: string
+          format: date
+        Amount:
+          type: number
+        AutoRenew:
+          type: boolean
+        CustomerIds:
+          type: array
+          minItems: 1
+          maxItems: 3
+          uniqueItems: true
+          items:
+            type: string
+        AddressId:
+          type: string
+        Payment:
+          $ref: "#/components/schemas/Payment"
+
+    SellBuyToLetPolicyRequest:
+      type: object
+      required:
+        - StartDate
+        - EndDate
+        - Amount
+        - AutoRenew
+        - CustomerIds
+        - AddressId
+        - Payment
+      properties:
+        StartDate:
+          type: string
+          format: date
+        EndDate:
+          type: string
+          format: date
+        Amount:
+          type: number
+        AutoRenew:
+          type: boolean
+        CustomerIds:
+          type: array
+          minItems: 1
+          maxItems: 3
+          uniqueItems: true
+          items:
+            type: string
+        AddressId:
+          type: string
+        Payment:
+          $ref: "#/components/schemas/Payment"
+
+    Payment:
+      type: object
+      required:
+        - PaymentReference
+        - Type
+        - Amount
+      properties:
+        PaymentReference:
+          type: string
+        Type:
+          $ref: "#/components/schemas/PaymentMethod"
+        Amount:
+          type: number
+
+    Refund:
+      type: object
+      required:
+        - RefundReference
+        - Type
+        - Amount
+      properties:
+        RefundReference:
+          type: string
+        Type:
+          $ref: "#/components/schemas/PaymentMethod"
+        Amount:
+          type: number
+
+    PaymentMethod:
+      type: string
+      enum:
+        - Card
+        - DirectDebit
+        - Cheque
+
+    CalculateCancellationRequest:
+      type: object
+      required:
+        - CancellationDate
+      properties:
+        CancellationDate:
+          type: string
+          format: date
+
+    CancellationQuote:
+      type: object
+      required:
+        - CancellationDate
+        - CancellationCost
+        - RefundAmount
+      properties:
+        CancellationDate:
+          type: string
+          format: date
+        CancellationCost:
+          type: number
+        RefundAmount:
+          type: number
+
+    CancelPolicyRequest:
+      type: object
+      required:
+        - CancellationDate
+      properties:
+        CancellationDate:
+          type: string
+          format: date
+
+    RenewPolicyRequest:
+      type: object
+      required:
+        - StartDate
+        - EndDate
+        - Amount
+      properties:
+        StartDate:
+          type: string
+          format: date
+        EndDate:
+          type: string
+          format: date
+        Amount:
+          type: number

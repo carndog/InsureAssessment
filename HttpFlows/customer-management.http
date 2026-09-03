@@ -1,0 +1,28 @@
+@baseUrl = http://localhost:5078
+
+### Create a Customer
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "FirstName": "John",
+  "LastName": "Doe",
+  "DateOfBirth": "1990-01-15"
+}
+
+> {%
+    client.test("Customer created successfully", function() {
+        client.assert(response.status === 201, "Response status is 201");
+        client.global.set("customerId", response.body.customerId);
+    });
+%}
+
+###
+
+### Retrieve a Customer
+GET {{baseUrl}}/api/customers/{{customerId}}
+
+###
+
+### Retrieve a Customer's Policies
+GET {{baseUrl}}/api/customers/{{customerId}}/policies?includeLapsed=true

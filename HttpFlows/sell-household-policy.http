@@ -1,0 +1,65 @@
+@baseUrl = http://localhost:5078
+
+### Step 1: Create Customer
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "FirstName": "John",
+  "LastName": "Doe",
+  "DateOfBirth": "1990-01-15"
+}
+
+> {%
+    client.test("Customer created successfully", function() {
+        client.assert(response.status === 201, "Response status is 201");
+        client.global.set("customerId", response.body.customerId);
+    });
+%}
+
+###
+
+### Step 2: Create Address
+POST {{baseUrl}}/api/addresses
+Content-Type: application/json
+
+{
+  "AddressLine1": "123 Main Street",
+  "AddressLine2": "Apt 4B",
+  "AddressLine3": "Downtown",
+  "Postcode": "AB12CD"
+}
+
+> {%
+    client.test("Address created successfully", function() {
+        client.assert(response.status === 201, "Response status is 201");
+        client.global.set("addressId", response.body.addressId);
+    });
+%}
+
+###
+
+### Step 3: Sell Household Policy
+POST {{baseUrl}}/api/policies/households
+Content-Type: application/json
+
+{
+  "StartDate": "2024-01-01",
+  "EndDate": "2025-01-01",
+  "Amount": 500.00,
+  "AutoRenew": true,
+  "CustomerIds": ["{{customerId}}"],
+  "AddressId": "{{addressId}}",
+  "Payment": {
+    "PaymentReference": "PAY-001",
+    "Type": "Card",
+    "Amount": 500.00
+  }
+}
+
+> {%
+    client.test("Policy created successfully", function() {
+        client.assert(response.status === 201, "Response status is 201");
+        client.global.set("policyReference", response.body.uniqueReference);
+    });
+%}

@@ -1,0 +1,3 @@
+namespace InsuranceDomain;
+
+public sealed class DomainRuleException(string message) : Exception(message);
