@@ -13,7 +13,7 @@ Content-Type: application/json
 > {%
     client.test("Customer created successfully", function() {
         client.assert(response.status === 201, "Response status is 201");
-        client.global.set("customerId", response.body.customerId);
+        client.global.set("customerId", response.body.CustomerId);
     });
 %}
 
@@ -33,7 +33,7 @@ Content-Type: application/json
 > {%
     client.test("Address created successfully", function() {
         client.assert(response.status === 201, "Response status is 201");
-        client.global.set("addressId", response.body.addressId);
+        client.global.set("addressId", response.body.AddressId);
     });
 %}
 
@@ -43,9 +43,22 @@ Content-Type: application/json
 POST {{baseUrl}}/api/policies/buytolet
 Content-Type: application/json
 
+> {%
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const nextYear = new Date(tomorrow);
+    nextYear.setFullYear(nextYear.getFullYear() + 1);
+
+    const formatDate = (date) => date.toISOString().split('T')[0];
+
+    client.global.set("startDate", formatDate(tomorrow));
+    client.global.set("endDate", formatDate(nextYear));
+%}
+
 {
-  "StartDate": "2024-01-01",
-  "EndDate": "2025-01-01",
+  "StartDate": "{{startDate}}",
+  "EndDate": "{{endDate}}",
   "Amount": 750.00,
   "AutoRenew": true,
   "CustomerIds": ["{{customerId}}"],
@@ -60,6 +73,6 @@ Content-Type: application/json
 > {%
     client.test("Policy created successfully", function() {
         client.assert(response.status === 201, "Response status is 201");
-        client.global.set("policyReference", response.body.uniqueReference);
+        client.global.set("policyReference", response.body.UniqueReference);
     });
 %}

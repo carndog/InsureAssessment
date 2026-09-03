@@ -16,8 +16,11 @@
 
     <ItemGroup>
       <Compile Remove="InsuranceDomain\**\*.cs" />
+      <Compile Remove="Tests\**\*.cs" />
       <EmbeddedResource Remove="InsuranceDomain\**\*.resx" />
+      <EmbeddedResource Remove="Tests\**\*.resx" />
       <None Remove="InsuranceDomain\**\*" />
+      <None Remove="Tests\**\*" />
     </ItemGroup>
 
     <ItemGroup>

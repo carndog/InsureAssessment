@@ -14,7 +14,7 @@ Content-Type: application/json
 > {%
     client.test("Address created successfully", function() {
         client.assert(response.status === 201, "Response status is 201");
-        client.global.set("addressId", response.body.addressId);
+        client.global.set("addressId", response.body.AddressId);
     });
 %}
 

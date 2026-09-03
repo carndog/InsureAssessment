@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsureApi", "InsureApi.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsuranceDomain", "InsuranceDomain\InsuranceDomain.csproj", "{4BF22957-5C7B-4858-842E-4E3C42514A45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsureApi.Tests", "..\InsureApi.Tests\InsureApi.Tests.csproj", "{5CC945A3-E62E-49CC-A701-DD39E98E23DE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InsureApi.Tests", "Tests\InsureApi.Tests.csproj", "{5CC945A3-E62E-49CC-A701-DD39E98E23DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
