@@ -30,32 +30,30 @@ dotnet test InsureApi.sln
 
 ## Using the HTTP Flows
 
-The solution includes HTTP flow files in the `HttpFlows` directory for testing the API endpoints. These files use JetBrains Rider's built-in HTTP Client.
+The solution includes independent HTTP scenario files in the `HttpFlows` directory for testing the API endpoints. These files use JetBrains Rider's built-in HTTP Client.
 
-### Flow Dependencies
+### Running HTTP Scenarios
 
-Some flows depend on variables set by previous flows. Run them in this order:
+1. Start the API with:
+   ```bash
+   dotnet run --project InsureApi.csproj --launch-profile http
+   ```
+2. Open one scenario file in Rider
+3. Use "Run All Requests in File" to execute the complete scenario
+4. Each scenario is independent and contains all prerequisite requests
 
-1. **customer-management.http** - Creates and retrieves customers
-2. **address-management.http** - Creates and retrieves addresses
-3. **sell-household-policy.http** - Creates a customer, address, and sells a household policy (sets `policyReference`)
-4. **sell-buytolet-policy.http** - Creates a customer, address, and sells a buy-to-let policy (sets `policyReference`)
-5. **policy-management.http** - Retrieves policy details, payments, and refunds (requires `policyReference`)
-6. **policy-cancellation.http** - Calculates cancellation quotes and cancels policies (requires `policyReference`)
-7. **policy-renewal.http** - Renews policies independently using the development policy `POL-RENEW-DEMO`
+### Scenario Files
 
-### Running HTTP Flows
+- **01-household-sale-and-retrieval.http** - Creates a customer, address, sells a household policy, and retrieves related data
+- **02-buytolet-sale-and-cancellation.http** - Creates a customer, address, sells a buy-to-let policy, calculates cancellation, and cancels
+- **03-policy-renewal.http** - Renews the development-seeded policy (POL-RENEW-DEMO)
+- **04-informative-errors.http** - Demonstrates error responses for invalid requests
 
-1. Keep the API running using the HTTP launch profile
-2. Open an HTTP flow file in Rider
-3. Click the run icon next to each request to execute it
-4. Variables are automatically extracted from responses and used in subsequent requests
+### Important Notes
 
-### Flow Sequence
-
-- Run either selling flow (sell-household-policy.http or sell-buytolet-policy.http) to create a policy and set the `policyReference` variable
-- Run policy management or cancellation using the generated `policyReference`
-- Run renewal independently against the development policy `POL-RENEW-DEMO` (does not depend on a selling flow)
+- Restart the API before re-running the renewal scenario because persistence is deliberately in memory
+- The cancellation scenario creates its own policy and should be run from the beginning when repeated
+- Each scenario is self-contained and does not depend on variables from other files
 
 ## API Endpoints
 

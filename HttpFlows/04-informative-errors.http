@@ -1,0 +1,42 @@
+@baseUrl = http://localhost:5078
+
+### # @name Create Address with Invalid Postcode
+POST {{baseUrl}}/api/addresses
+Content-Type: application/json
+
+{
+  "Line1": "123 Main Street",
+  "Line2": "Apt 4B",
+  "City": "London",
+  "Postcode": "SW1A1AA123456789",
+  "Country": "United Kingdom"
+}
+
+> {%
+client.test("Status is 400", function() {
+    client.assert(response.status === 400, "Expected 400 Bad Request");
+});
+client.test("Response is Problem Details", function() {
+    client.assert(response.body.type !== undefined, "Expected Problem Details response");
+});
+client.test("Contains informative detail", function() {
+    client.assert(response.body.detail !== undefined && response.body.detail.length > 0, "Expected informative detail message");
+});
+%}
+
+###
+
+### # @name Retrieve Nonexistent Policy
+GET {{baseUrl}}/api/policies/POL-NONEXISTENT
+
+> {%
+client.test("Status is 404", function() {
+    client.assert(response.status === 404, "Expected 404 Not Found");
+});
+client.test("Response is Problem Details", function() {
+    client.assert(response.body.type !== undefined, "Expected Problem Details response");
+});
+client.test("Contains informative detail", function() {
+    client.assert(response.body.detail !== undefined && response.body.detail.length > 0, "Expected informative detail message");
+});
+%}

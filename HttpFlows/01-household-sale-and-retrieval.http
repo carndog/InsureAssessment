@@ -1,0 +1,150 @@
+@baseUrl = http://localhost:5078
+
+### # @name Create Household Customer
+POST {{baseUrl}}/api/customers
+Content-Type: application/json
+
+{
+  "FirstName": "John",
+  "LastName": "Smith",
+  "Email": "john.smith@example.com",
+  "PhoneNumber": "07123456789"
+}
+
+> {%
+client.test("Status is 201", function() {
+    client.assert(response.status === 201, "Expected 201 Created");
+});
+client.global.set("householdCustomerId", response.body.CustomerId);
+%}
+
+###
+
+### # @name Create Household Address
+POST {{baseUrl}}/api/addresses
+Content-Type: application/json
+
+{
+  "Line1": "123 Main Street",
+  "Line2": "Apt 4B",
+  "City": "London",
+  "Postcode": "SW1A 1AA",
+  "Country": "United Kingdom"
+}
+
+> {%
+client.test("Status is 201", function() {
+    client.assert(response.status === 201, "Expected 201 Created");
+});
+client.global.set("householdAddressId", response.body.AddressId);
+%}
+
+###
+
+### # @name Sell Household Policy
+POST {{baseUrl}}/api/policies/sell
+Content-Type: application/json
+
+< {%
+const today = new Date();
+const startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
+const endDate = new Date(Date.UTC(startDate.getUTCFullYear() + 1, startDate.getUTCMonth(), startDate.getUTCDate()));
+
+const formatDate = (date) => {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+request.variables.set("householdStartDate", formatDate(startDate));
+request.variables.set("householdEndDate", formatDate(endDate));
+request.variables.set("householdCustomerId", client.global.get("householdCustomerId"));
+request.variables.set("householdAddressId", client.global.get("householdAddressId"));
+%}
+
+{
+  "CustomerId": "{{householdCustomerId}}",
+  "AddressId": "{{householdAddressId}}",
+  "PolicyType": "Household",
+  "StartDate": "{{householdStartDate}}",
+  "EndDate": "{{householdEndDate}}",
+  "Amount": 500.00,
+  "AutoRenew": true,
+  "Payment": {
+    "Reference": "PAY-HOUSEHOLD-001",
+    "Type": "Card",
+    "Amount": 500.00
+  }
+}
+
+> {%
+client.test("Status is 201", function() {
+    client.assert(response.status === 201, "Expected 201 Created");
+});
+client.global.set("householdPolicyReference", response.body.UniqueReference);
+%}
+
+###
+
+### # @name Retrieve Household Policy
+GET {{baseUrl}}/api/policies/{{householdPolicyReference}}
+
+> {%
+client.test("Status is 200", function() {
+    client.assert(response.status === 200, "Expected 200 OK");
+});
+client.test("UniqueReference matches", function() {
+    client.assert(response.body.UniqueReference === client.global.get("householdPolicyReference"), "UniqueReference should match");
+});
+%}
+
+###
+
+### # @name Retrieve Household Policy Payments
+GET {{baseUrl}}/api/policies/{{householdPolicyReference}}/payments
+
+> {%
+client.test("Status is 200", function() {
+    client.assert(response.status === 200, "Expected 200 OK");
+});
+client.test("One payment returned", function() {
+    client.assert(response.body.length === 1, "Expected exactly one payment");
+});
+client.test("Payment type is Card", function() {
+    client.assert(response.body[0].Type === "Card", "Expected payment type to be Card");
+});
+client.test("Payment amount is 500.00", function() {
+    client.assert(response.body[0].Amount === 500.00, "Expected payment amount to be 500.00");
+});
+%}
+
+###
+
+### # @name Retrieve Household Policy Refunds
+GET {{baseUrl}}/api/policies/{{householdPolicyReference}}/refunds
+
+> {%
+client.test("Status is 200", function() {
+    client.assert(response.status === 200, "Expected 200 OK");
+});
+client.test("Refunds array is empty", function() {
+    client.assert(response.body.length === 0, "Expected refunds array to be empty");
+});
+%}
+
+###
+
+### # @name Retrieve Customer Policies
+GET {{baseUrl}}/api/customers/{{householdCustomerId}}/policies
+
+> {%
+client.test("Status is 200", function() {
+    client.assert(response.status === 200, "Expected 200 OK");
+});
+client.test("Newly created policy is present", function() {
+    const policyRef = client.global.get("householdPolicyReference");
+    const policyExists = response.body.some(p => p.UniqueReference === policyRef);
+    client.assert(policyExists, "Expected newly created policy to be present");
+});
+%}
