@@ -1,10 +1,5 @@
 namespace InsuranceDomain.Services;
 
-public sealed record CancellationQuote(
-    DateOnly CancellationDate,
-    decimal CancellationCost,
-    decimal RefundAmount);
-
 public sealed class CalculateCancellationCostService(InsuranceStore store)
 {
     public CancellationQuote Execute(string reference, DateOnly cancellationDate)

@@ -1,7 +1,5 @@
 namespace InsuranceDomain.Services;
 
-public sealed record RenewalResult(Policy Policy, Payment? Payment);
-
 public sealed class RenewPolicyService(InsuranceStore store, TimeProvider timeProvider)
 {
     public RenewalResult Execute(
