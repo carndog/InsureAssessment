@@ -53,6 +53,8 @@ public abstract class Policy
     public DateOnly? CancellationDate { get; private set; }
     public bool IsCancelled => CancellationDate.HasValue;
 
+    public bool IsLapsed(DateOnly today) => !IsCancelled && today > EndDate;
+
     public void RegisterClaim() => HasClaims = true;
 
     public decimal CalculateRefundAmount(DateOnly cancellationDate)
@@ -73,7 +75,7 @@ public abstract class Policy
     public Refund Cancel(DateOnly cancellationDate, string refundReference)
     {
         if (IsCancelled)
-            throw new DomainRuleException("The Policy has already been cancelled.");
+            throw new ConflictException("The Policy has already been cancelled.");
 
         Refund refund = new Refund(
             refundReference,
@@ -93,11 +95,11 @@ public abstract class Policy
         string paymentReference)
     {
         if (IsCancelled)
-            throw new DomainRuleException("A cancelled Policy cannot be renewed.");
+            throw new ConflictException("A cancelled Policy cannot be renewed.");
         if (today < EndDate.AddDays(-30))
-            throw new DomainRuleException("A Policy cannot be renewed more than 30 days before its EndDate.");
+            throw new ConflictException("A Policy cannot be renewed more than 30 days before its EndDate.");
         if (today > EndDate)
-            throw new DomainRuleException("A Policy cannot be renewed after its EndDate.");
+            throw new ConflictException("A Policy cannot be renewed after its EndDate.");
         if (newEndDate != newStartDate.AddYears(1))
             throw new DomainRuleException("A renewed Policy must be exactly one year in length.");
         if (newAmount < 0)

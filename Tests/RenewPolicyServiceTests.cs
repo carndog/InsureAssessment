@@ -8,11 +8,13 @@ public sealed class RenewPolicyServiceTests
     private readonly InsuranceStore _store;
     private readonly CustomerService _customerService;
     private readonly AddressService _addressService;
+    private readonly TimeProvider _timeProvider;
 
     public RenewPolicyServiceTests()
     {
         _store = new InsuranceStore();
-        _customerService = new CustomerService(_store);
+        _timeProvider = TimeProvider.System;
+        _customerService = new CustomerService(_store, _timeProvider);
         _addressService = new AddressService(_store);
     }
 
@@ -74,7 +76,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddYears(1);
         DateOnly currentDate = startDate.AddDays(300);
 
-        Assert.Throws<DomainRuleException>(() => CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
+        Assert.Throws<ConflictException>(() => CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
     }
 
     [Fact]
@@ -87,7 +89,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddYears(1);
         DateOnly currentDate = startDate.AddDays(400);
 
-        Assert.Throws<DomainRuleException>(() => CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
+        Assert.Throws<ConflictException>(() => CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
     }
 
     [Fact]
@@ -115,7 +117,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddYears(1);
         DateOnly currentDate = startDate.AddDays(340);
 
-        Assert.Throws<DomainRuleException>(() => CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
+        Assert.Throws<ConflictException>(() => CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
     }
 
     [Fact]

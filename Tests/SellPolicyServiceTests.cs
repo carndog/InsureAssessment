@@ -14,9 +14,9 @@ public sealed class SellPolicyServiceTests
     public SellPolicyServiceTests()
     {
         _store = new InsuranceStore();
-        _customerService = new CustomerService(_store);
-        _addressService = new AddressService(_store);
         _timeProvider = TimeProvider.System;
+        _customerService = new CustomerService(_store, _timeProvider);
+        _addressService = new AddressService(_store);
         _service = new SellPolicyService(_store, _timeProvider);
     }
 

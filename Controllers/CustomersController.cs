@@ -34,7 +34,7 @@ public sealed class CustomersController(CustomerService service) : ControllerBas
     public ActionResult<IEnumerable<PolicyResponse>> GetPolicies(Guid customerId, bool includeLapsed = true)
     {
         Customer customer = service.Get(customerId);
-        IReadOnlyCollection<Policy> policies = service.GetPolicies(customerId);
+        IReadOnlyCollection<Policy> policies = service.GetPolicies(customerId, includeLapsed);
         return Ok(policies.Select(p => p.ToResponse()));
     }
 }

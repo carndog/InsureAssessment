@@ -8,11 +8,13 @@ public sealed class CancelPolicyServiceTests
     private readonly InsuranceStore _store;
     private readonly CustomerService _customerService;
     private readonly AddressService _addressService;
+    private readonly TimeProvider _timeProvider;
 
     public CancelPolicyServiceTests()
     {
         _store = new InsuranceStore();
-        _customerService = new CustomerService(_store);
+        _timeProvider = TimeProvider.System;
+        _customerService = new CustomerService(_store, _timeProvider);
         _addressService = new AddressService(_store);
     }
 
@@ -126,7 +128,7 @@ public sealed class CancelPolicyServiceTests
         DateOnly cancellationDate = startDate.AddDays(5);
         CreateCancelPolicyService().Execute(policy.UniqueReference, cancellationDate);
 
-        Assert.Throws<DomainRuleException>(() => CreateCancelPolicyService().Execute(policy.UniqueReference, cancellationDate));
+        Assert.Throws<ConflictException>(() => CreateCancelPolicyService().Execute(policy.UniqueReference, cancellationDate));
     }
 
     [Fact]

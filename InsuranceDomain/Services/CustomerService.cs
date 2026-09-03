@@ -1,6 +1,6 @@
 namespace InsuranceDomain.Services;
 
-public sealed class CustomerService(InsuranceStore store)
+public sealed class CustomerService(InsuranceStore store, TimeProvider timeProvider)
 {
     public Customer Create(Guid customerId, string firstName, string lastName, DateOnly dateOfBirth)
     {
@@ -11,5 +11,16 @@ public sealed class CustomerService(InsuranceStore store)
 
     public Customer Get(Guid customerId) => store.GetCustomer(customerId);
 
-    public IReadOnlyCollection<Policy> GetPolicies(Guid customerId) => store.GetPolicies(customerId);
+    public IReadOnlyCollection<Policy> GetPolicies(Guid customerId, bool includeLapsed = true)
+    {
+        DateOnly today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
+        IReadOnlyCollection<Policy> policies = store.GetPolicies(customerId);
+
+        if (!includeLapsed)
+        {
+            return policies.Where(p => !p.IsLapsed(today)).ToArray();
+        }
+
+        return policies;
+    }
 }
