@@ -14,9 +14,6 @@ public sealed class PolicyAdministrationController(
     RenewPolicyService renewPolicyService) : ControllerBase
 {
     [HttpPost("{uniqueReference}/cancellation-quotes")]
-    [ProducesResponseType<CancellationQuoteResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public ActionResult<CancellationQuoteResponse> CalculateCancellation(string uniqueReference, CalculateCancellationRequest request)
     {
         CancellationQuote quote = calculateCancellationCostService.Execute(uniqueReference, request.CancellationDate);
@@ -24,9 +21,6 @@ public sealed class PolicyAdministrationController(
     }
 
     [HttpPut("{uniqueReference}/cancellation")]
-    [ProducesResponseType<RefundResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public ActionResult<RefundResponse> Cancel(string uniqueReference, CancelPolicyRequest request)
     {
         Refund refund = cancelPolicyService.Execute(uniqueReference, request.CancellationDate);
@@ -34,9 +28,6 @@ public sealed class PolicyAdministrationController(
     }
 
     [HttpPost("{uniqueReference}/renewals")]
-    [ProducesResponseType<PolicyResponse>(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public ActionResult<PolicyResponse> Renew(string uniqueReference, RenewPolicyRequest request)
     {
         RenewalResult result = renewPolicyService.Execute(uniqueReference, request.StartDate, request.EndDate, request.Amount);

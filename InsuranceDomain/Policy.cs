@@ -53,10 +53,6 @@ public abstract class Policy
     public DateOnly? CancellationDate { get; private set; }
     public bool IsCancelled => CancellationDate.HasValue;
 
-    public bool IsLapsed(DateOnly today) => !IsCancelled && today > EndDate;
-
-    public void RegisterClaim() => HasClaims = true;
-
     public decimal CalculateRefundAmount(DateOnly cancellationDate)
     {
         if (cancellationDate > EndDate)

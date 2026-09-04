@@ -1,15 +1,17 @@
+using System.Collections.Concurrent;
+
 namespace InsuranceDomain;
 
 public sealed class InsuranceStore
 {
-    private readonly Dictionary<Guid, Customer> _customers = [];
-    private readonly Dictionary<Guid, Address> _addresses = [];
-    private readonly Dictionary<string, Policy> _policies =
+    private readonly ConcurrentDictionary<Guid, Customer> _customers = [];
+    private readonly ConcurrentDictionary<Guid, Address> _addresses = [];
+    private readonly ConcurrentDictionary<string, Policy> _policies =
         new(StringComparer.OrdinalIgnoreCase);
 
-    public void Add(Customer customer) => _customers.Add(customer.CustomerId, customer);
-    public void Add(Address address) => _addresses.Add(address.AddressId, address);
-    public void Add(Policy policy) => _policies.Add(policy.UniqueReference, policy);
+    public void Add(Customer customer) => _customers.TryAdd(customer.CustomerId, customer);
+    public void Add(Address address) => _addresses.TryAdd(address.AddressId, address);
+    public void Add(Policy policy) => _policies.TryAdd(policy.UniqueReference, policy);
 
     public Customer GetCustomer(Guid id) =>
         _customers.TryGetValue(id, out Customer? customer)

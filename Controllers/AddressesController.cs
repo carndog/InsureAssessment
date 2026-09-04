@@ -11,7 +11,6 @@ namespace InsureApi.Controllers;
 public sealed class AddressesController(AddressService service) : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType<AddressResponse>(StatusCodes.Status201Created)]
     public ActionResult<AddressResponse> Create(CreateAddressRequest request)
     {
         Guid addressId = Guid.NewGuid();
@@ -20,8 +19,6 @@ public sealed class AddressesController(AddressService service) : ControllerBase
     }
 
     [HttpGet("{addressId}")]
-    [ProducesResponseType<AddressResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<AddressResponse> Get(Guid addressId)
     {
         Address address = service.Get(addressId);

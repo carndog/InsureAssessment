@@ -11,8 +11,6 @@ namespace InsureApi.Controllers;
 public sealed class PaymentsController(RetrievePolicyService service) : ControllerBase
 {
     [HttpGet("{uniqueReference}/payments")]
-    [ProducesResponseType<IEnumerable<PaymentResponse>>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<IEnumerable<PaymentResponse>> GetPayments(string uniqueReference)
     {
         Policy policy = service.GetPolicy(uniqueReference);

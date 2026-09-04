@@ -2,7 +2,6 @@ using System.Text.Json.Serialization;
 using InsuranceDomain;
 using InsuranceDomain.Services;
 using InsureApi.Middleware;
-using Microsoft.AspNetCore.Mvc;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +15,7 @@ builder.Services
 
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddScoped<InsuranceStore>();
+builder.Services.AddSingleton<InsuranceStore>();
 
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<AddressService>();

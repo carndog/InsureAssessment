@@ -11,7 +11,6 @@ namespace InsureApi.Controllers;
 public sealed class CustomersController(CustomerService service) : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType<CustomerResponse>(StatusCodes.Status201Created)]
     public ActionResult<CustomerResponse> Create(CreateCustomerRequest request)
     {
         Guid customerId = Guid.NewGuid();
@@ -20,8 +19,6 @@ public sealed class CustomersController(CustomerService service) : ControllerBas
     }
 
     [HttpGet("{customerId}")]
-    [ProducesResponseType<CustomerResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<CustomerResponse> Get(Guid customerId)
     {
         Customer customer = service.Get(customerId);
@@ -29,11 +26,9 @@ public sealed class CustomersController(CustomerService service) : ControllerBas
     }
 
     [HttpGet("{customerId}/policies")]
-    [ProducesResponseType<IEnumerable<PolicyResponse>>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<IEnumerable<PolicyResponse>> GetPolicies(Guid customerId, bool includeLapsed = true)
+    public ActionResult<IEnumerable<PolicyResponse>> GetPolicies(Guid customerId)
     {
-        Policy[] policies = service.GetPolicies(customerId, includeLapsed);
+        Policy[] policies = service.GetPolicies(customerId);
         return Ok(policies.Select(p => p.ToResponse()));
     }
 }

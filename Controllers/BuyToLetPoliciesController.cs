@@ -11,7 +11,6 @@ namespace InsureApi.Controllers;
 public sealed class BuyToLetPoliciesController(SellPolicyService service) : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType<PolicyResponse>(StatusCodes.Status201Created)]
     public ActionResult<PolicyResponse> Sell(SellBuyToLetPolicyRequest request)
     {
         SellPolicyDetails details = new SellPolicyDetails(
