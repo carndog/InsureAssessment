@@ -55,7 +55,7 @@ public sealed class CancelPolicyServiceTests
         return new CancelPolicyService(_store);
     }
 
-    [Fact]
+    [Test]
     public void Cancellation_BeforeStartDate_ProducesAFullRefund()
     {
         DateOnly startDate = new DateOnly(2024, 1, 1);
@@ -64,11 +64,11 @@ public sealed class CancelPolicyServiceTests
         DateOnly cancellationDate = startDate.AddDays(-1);
         CancellationQuote quote = CreateCancellationCostService().Calculate(policy.UniqueReference, cancellationDate);
 
-        Assert.Equal(500.00m, quote.RefundAmount);
-        Assert.Equal(0.00m, quote.CancellationCost);
+        Assert.That(quote.RefundAmount, Is.EqualTo(500.00m));
+        Assert.That(quote.CancellationCost, Is.EqualTo(0.00m));
     }
 
-    [Fact]
+    [Test]
     public void Cancellation_DuringThe14DayCoolingOffPeriod_ProducesAFullRefund()
     {
         DateOnly startDate = new DateOnly(2024, 1, 1);
@@ -77,11 +77,11 @@ public sealed class CancelPolicyServiceTests
         DateOnly cancellationDate = startDate.AddDays(14);
         CancellationQuote quote = CreateCancellationCostService().Calculate(policy.UniqueReference, cancellationDate);
 
-        Assert.Equal(500.00m, quote.RefundAmount);
-        Assert.Equal(0.00m, quote.CancellationCost);
+        Assert.That(quote.RefundAmount, Is.EqualTo(500.00m));
+        Assert.That(quote.CancellationCost, Is.EqualTo(0.00m));
     }
 
-    [Fact]
+    [Test]
     public void Cancellation_AfterTheCoolingOffPeriod_ProducesAProRataRefund()
     {
         DateOnly startDate = new DateOnly(2023, 1, 1);
@@ -94,11 +94,11 @@ public sealed class CancelPolicyServiceTests
         int unusedDays = 265;
         decimal expectedRefund = decimal.Round(500.00m * unusedDays / totalDays, 2, MidpointRounding.AwayFromZero);
 
-        Assert.Equal(expectedRefund, quote.RefundAmount);
-        Assert.Equal(500.00m - expectedRefund, quote.CancellationCost);
+        Assert.That(expectedRefund, Is.EqualTo(quote.RefundAmount));
+        Assert.That(500.00m - expectedRefund, Is.EqualTo(quote.CancellationCost));
     }
 
-    [Fact]
+    [Test]
     public void Refund_UsesTheSamePaymentMethodAsTheOriginalPayment()
     {
         DateOnly startDate = new DateOnly(2024, 1, 1);
@@ -107,10 +107,10 @@ public sealed class CancelPolicyServiceTests
         DateOnly cancellationDate = startDate.AddDays(5);
         Refund refund = CreateCancelPolicyService().Create(policy.UniqueReference, cancellationDate);
 
-        Assert.Equal(policy.Payments[0].Type, refund.Type);
+        Assert.That(policy.Payments[0].Type, Is.EqualTo(refund.Type));
     }
 
-    [Fact]
+    [Test]
     public void Cancellation_AfterEndDate_IsRejected()
     {
         DateOnly startDate = new DateOnly(2024, 1, 1);
@@ -121,7 +121,7 @@ public sealed class CancelPolicyServiceTests
         Assert.Throws<DomainRuleException>(() => CreateCancellationCostService().Calculate(policy.UniqueReference, cancellationDate));
     }
 
-    [Fact]
+    [Test]
     public void CancellingAnAlreadyCancelledPolicy_IsRejected()
     {
         DateOnly startDate = new DateOnly(2024, 1, 1);
@@ -133,7 +133,7 @@ public sealed class CancelPolicyServiceTests
         Assert.Throws<DomainRuleException>(() => CreateCancelPolicyService().Create(policy.UniqueReference, cancellationDate));
     }
 
-    [Fact]
+    [Test]
     public void CalculatingACancellationQuote_DoesNotCancelThePolicyOrAddARefund()
     {
         DateOnly startDate = new DateOnly(2024, 1, 1);
@@ -142,7 +142,7 @@ public sealed class CancelPolicyServiceTests
         DateOnly cancellationDate = startDate.AddDays(5);
         CreateCancellationCostService().Calculate(policy.UniqueReference, cancellationDate);
 
-        Assert.False(policy.IsCancelled);
-        Assert.Empty(policy.Refunds);
+        Assert.That(policy.IsCancelled, Is.False);
+        Assert.That(policy.Refunds, Is.Empty);
     }
 }

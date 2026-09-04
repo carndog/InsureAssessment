@@ -21,7 +21,7 @@ public sealed class SellPolicyServiceTests
         _service = new SellPolicyService(store, _timeProvider);
     }
 
-    [Fact]
+    [Test]
     public void ValidHouseholdPolicy_IsSoldAndStored()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -47,17 +47,17 @@ public sealed class SellPolicyServiceTests
 
         Policy policy = _service.SellHousehold(details);
 
-        Assert.NotEmpty(policy.UniqueReference);
-        Assert.Equal(startDate, policy.StartDate);
-        Assert.Equal(endDate, policy.EndDate);
-        Assert.Equal(500.00m, policy.Amount);
-        Assert.True(policy.AutoRenew);
-        Assert.Single(policy.CustomerIds);
-        Assert.Equal(addressId, policy.AddressId);
-        Assert.Single(policy.Payments);
+        Assert.That(policy.UniqueReference, Is.Not.Empty);
+        Assert.That(policy.StartDate, Is.EqualTo(startDate));
+        Assert.That(policy.EndDate, Is.EqualTo(endDate));
+        Assert.That(policy.Amount, Is.EqualTo(500.00m));
+        Assert.That(policy.AutoRenew, Is.True);
+        Assert.That(policy.CustomerIds.Count, Is.EqualTo(1));
+        Assert.That(policy.AddressId, Is.EqualTo(addressId));
+        Assert.That(policy.Payments.Count, Is.EqualTo(1));
     }
 
-    [Fact]
+    [Test]
     public void ValidBuyToLetPolicy_IsSoldAndStored()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -83,13 +83,13 @@ public sealed class SellPolicyServiceTests
 
         Policy policy = _service.SellBuyToLet(details);
 
-        Assert.NotEmpty(policy.UniqueReference);
-        Assert.Equal(startDate, policy.StartDate);
-        Assert.Equal(endDate, policy.EndDate);
-        Assert.Equal(500.00m, policy.Amount);
+        Assert.That(policy.UniqueReference, Is.Not.Empty);
+        Assert.That(policy.StartDate, Is.EqualTo(startDate));
+        Assert.That(policy.EndDate, Is.EqualTo(endDate));
+        Assert.That(policy.Amount, Is.EqualTo(500.00m));
     }
 
-    [Fact]
+    [Test]
     public void UniqueReference_IsGeneratedAndTwoSalesReceiveDifferentReferences()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -127,10 +127,10 @@ public sealed class SellPolicyServiceTests
         Policy policy1 = _service.SellHousehold(details1);
         Policy policy2 = _service.SellHousehold(details2);
 
-        Assert.NotEqual(policy1.UniqueReference, policy2.UniqueReference);
+        Assert.That(policy1.UniqueReference, Is.Not.EqualTo(policy2.UniqueReference));
     }
 
-    [Fact]
+    [Test]
     public void StartDate_MoreThan60DaysAhead_IsRejected()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -157,7 +157,7 @@ public sealed class SellPolicyServiceTests
         Assert.Throws<DomainRuleException>(() => _service.SellHousehold(details));
     }
 
-    [Fact]
+    [Test]
     public void StartDate_InThePast_IsRejected()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -184,7 +184,7 @@ public sealed class SellPolicyServiceTests
         Assert.Throws<DomainRuleException>(() => _service.SellHousehold(details));
     }
 
-    [Fact]
+    [Test]
     public void EndDate_OtherThanStartDateAddYears1_IsRejected()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -211,7 +211,7 @@ public sealed class SellPolicyServiceTests
         Assert.Throws<DomainRuleException>(() => _service.SellHousehold(details));
     }
 
-    [Fact]
+    [Test]
     public void NoCustomers_IsRejected()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -235,7 +235,7 @@ public sealed class SellPolicyServiceTests
         Assert.Throws<DomainRuleException>(() => _service.SellHousehold(details));
     }
 
-    [Fact]
+    [Test]
     public void MoreThanThreeCustomers_IsRejected()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -269,7 +269,7 @@ public sealed class SellPolicyServiceTests
         Assert.Throws<DomainRuleException>(() => _service.SellHousehold(details));
     }
 
-    [Fact]
+    [Test]
     public void DuplicateCustomerIds_DoNotCircumventThe1To3Rule()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -296,7 +296,7 @@ public sealed class SellPolicyServiceTests
         Assert.Throws<DomainRuleException>(() => _service.SellHousehold(details));
     }
 
-    [Fact]
+    [Test]
     public void AMissingCustomerId_IsRejected()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -321,7 +321,7 @@ public sealed class SellPolicyServiceTests
         Assert.Throws<EntityNotFoundException>(() => _service.SellHousehold(details));
     }
 
-    [Fact]
+    [Test]
     public void AMissingAddressId_IsRejected()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -347,7 +347,7 @@ public sealed class SellPolicyServiceTests
         Assert.Throws<EntityNotFoundException>(() => _service.SellHousehold(details));
     }
 
-    [Fact]
+    [Test]
     public void ACustomerNotOver16OnStartDate_IsRejected()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -375,7 +375,7 @@ public sealed class SellPolicyServiceTests
         Assert.Throws<DomainRuleException>(() => _service.SellHousehold(details));
     }
 
-    [Fact]
+    [Test]
     public void AValidSale_CreatesExactlyOnePaymentWithTheSuppliedMethodAndAmount()
     {
         DateOnly today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
@@ -401,9 +401,9 @@ public sealed class SellPolicyServiceTests
 
         Policy policy = _service.SellHousehold(details);
 
-        Assert.Single(policy.Payments);
-        Assert.Equal("PAY-REF-001", policy.Payments[0].PaymentReference);
-        Assert.Equal(PaymentMethod.DirectDebit, policy.Payments[0].Type);
-        Assert.Equal(500.00m, policy.Payments[0].Amount);
+        Assert.That(policy.Payments.Count, Is.EqualTo(1));
+        Assert.That(policy.Payments[0].PaymentReference, Is.EqualTo("PAY-REF-001"));
+        Assert.That(policy.Payments[0].Type, Is.EqualTo(PaymentMethod.DirectDebit));
+        Assert.That(policy.Payments[0].Amount, Is.EqualTo(500.00m));
     }
 }

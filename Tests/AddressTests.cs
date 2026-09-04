@@ -5,21 +5,21 @@ namespace InsureApi.Tests;
 
 public sealed class AddressTests
 {
-    [Fact]
+    [Test]
     public void AddressLine1_IsRequired()
     {
         Guid addressId = Guid.NewGuid();
         Assert.Throws<DomainRuleException>(() => new Address(addressId, "", null, null, "SW1A 1AA"));
     }
 
-    [Fact]
+    [Test]
     public void Postcode_IsRequired()
     {
         Guid addressId = Guid.NewGuid();
         Assert.Throws<DomainRuleException>(() => new Address(addressId, "123 Main St", null, null, ""));
     }
 
-    [Fact]
+    [Test]
     public void Postcode_LongerThanEightCharacters_IsRejected()
     {
         Guid addressId = Guid.NewGuid();
