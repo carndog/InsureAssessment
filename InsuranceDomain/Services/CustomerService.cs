@@ -11,10 +11,10 @@ public sealed class CustomerService(InsuranceStore store, TimeProvider timeProvi
 
     public Customer Get(Guid customerId) => store.GetCustomer(customerId);
 
-    public IReadOnlyCollection<Policy> GetPolicies(Guid customerId, bool includeLapsed = true)
+    public Policy[] GetPolicies(Guid customerId, bool includeLapsed = true)
     {
         DateOnly today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
-        IReadOnlyCollection<Policy> policies = store.GetPolicies(customerId);
+        Policy[] policies = store.GetPolicies(customerId);
 
         if (!includeLapsed)
         {

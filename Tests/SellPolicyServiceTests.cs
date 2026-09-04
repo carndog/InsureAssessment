@@ -354,7 +354,7 @@ public sealed class SellPolicyServiceTests
         DateOnly endDate = startDate.AddYears(1);
 
         Guid customerId = Guid.NewGuid();
-        DateOnly dateOfBirth = DateOnly.FromDateTime(DateTime.Now.AddYears(-15));
+        DateOnly dateOfBirth = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime.AddYears(-15));
         _customerService.Create(customerId, "John", "Doe", dateOfBirth);
 
         Guid addressId = Guid.NewGuid();

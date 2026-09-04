@@ -16,15 +16,15 @@ builder.Services
 
 builder.Services.AddOpenApi();
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddSingleton<InsuranceStore>();
+builder.Services.AddScoped<InsuranceStore>();
 
-builder.Services.AddSingleton<CustomerService>();
-builder.Services.AddSingleton<AddressService>();
-builder.Services.AddSingleton<SellPolicyService>();
-builder.Services.AddSingleton<RetrievePolicyService>();
-builder.Services.AddSingleton<CalculateCancellationCostService>();
-builder.Services.AddSingleton<CancelPolicyService>();
-builder.Services.AddSingleton<RenewPolicyService>();
+builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<AddressService>();
+builder.Services.AddScoped<SellPolicyService>();
+builder.Services.AddScoped<RetrievePolicyService>();
+builder.Services.AddScoped<CalculateCancellationCostService>();
+builder.Services.AddScoped<CancelPolicyService>();
+builder.Services.AddScoped<RenewPolicyService>();
 
 builder.Services.AddExceptionHandler<ProblemDetailsExceptionHandler>();
 builder.Services.AddProblemDetails(options =>

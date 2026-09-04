@@ -26,7 +26,7 @@ public sealed class InsuranceStore
             ? policy
             : throw new EntityNotFoundException($"Policy '{reference}' was not found.");
 
-    public IReadOnlyCollection<Policy> GetPolicies(Guid customerId) =>
+    public Policy[] GetPolicies(Guid customerId) =>
         _policies.Values.Where(policy => policy.CustomerIds.Contains(customerId)).ToArray();
 
     public void SeedDevelopmentData(TimeProvider timeProvider)

@@ -33,8 +33,7 @@ public sealed class CustomersController(CustomerService service) : ControllerBas
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public ActionResult<IEnumerable<PolicyResponse>> GetPolicies(Guid customerId, bool includeLapsed = true)
     {
-        Customer customer = service.Get(customerId);
-        IReadOnlyCollection<Policy> policies = service.GetPolicies(customerId, includeLapsed);
+        Policy[] policies = service.GetPolicies(customerId, includeLapsed);
         return Ok(policies.Select(p => p.ToResponse()));
     }
 }
