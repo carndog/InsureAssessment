@@ -1,6 +1,8 @@
+using InsuranceDomain.DataLayer;
+
 namespace InsuranceDomain.Services;
 
-public sealed class CustomerService(InsuranceStore store, TimeProvider timeProvider)
+public sealed class CustomerService(InsuranceStore store)
 {
     public Customer Create(Guid customerId, string firstName, string lastName, DateOnly dateOfBirth)
     {

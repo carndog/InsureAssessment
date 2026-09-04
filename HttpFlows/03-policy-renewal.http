@@ -8,8 +8,8 @@ GET {{baseUrl}}/api/policies/POL-RENEW-DEMO
 
 ### # @name Renew Policy
 < {%
-client.global.set("renewalStartDate", "2027-09-05");
-client.global.set("renewalEndDate", "2028-09-05");
+client.global.set("renewalStartDate", "2026-10-05");
+client.global.set("renewalEndDate", "2027-10-05");
 client.global.set("renewalAmount", 550.00);
 %}
 

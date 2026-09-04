@@ -1,3 +1,6 @@
+using InsuranceDomain.DataLayer;
+using InsuranceDomain.Exceptions;
+
 namespace InsuranceDomain.Services;
 
 public sealed class SellPolicyService(InsuranceStore store, TimeProvider timeProvider)

@@ -1,4 +1,6 @@
 using InsuranceDomain;
+using InsuranceDomain.DataLayer;
+using InsuranceDomain.Exceptions;
 using InsuranceDomain.Services;
 
 namespace InsureApi.Tests;
@@ -14,7 +16,7 @@ public sealed class CancelPolicyServiceTests
     {
         _store = new InsuranceStore();
         _timeProvider = new FixedTimeProvider(new DateOnly(2024, 1, 1));
-        _customerService = new CustomerService(_store, _timeProvider);
+        _customerService = new CustomerService(_store);
         _addressService = new AddressService(_store);
     }
 
@@ -60,7 +62,7 @@ public sealed class CancelPolicyServiceTests
         Policy policy = CreateTestPolicy(startDate);
 
         DateOnly cancellationDate = startDate.AddDays(-1);
-        CancellationQuote quote = CreateCancellationCostService().Execute(policy.UniqueReference, cancellationDate);
+        CancellationQuote quote = CreateCancellationCostService().Calculate(policy.UniqueReference, cancellationDate);
 
         Assert.Equal(500.00m, quote.RefundAmount);
         Assert.Equal(0.00m, quote.CancellationCost);
@@ -73,7 +75,7 @@ public sealed class CancelPolicyServiceTests
         Policy policy = CreateTestPolicy(startDate);
 
         DateOnly cancellationDate = startDate.AddDays(14);
-        CancellationQuote quote = CreateCancellationCostService().Execute(policy.UniqueReference, cancellationDate);
+        CancellationQuote quote = CreateCancellationCostService().Calculate(policy.UniqueReference, cancellationDate);
 
         Assert.Equal(500.00m, quote.RefundAmount);
         Assert.Equal(0.00m, quote.CancellationCost);
@@ -86,7 +88,7 @@ public sealed class CancelPolicyServiceTests
         Policy policy = CreateTestPolicy(startDate);
 
         DateOnly cancellationDate = startDate.AddDays(100);
-        CancellationQuote quote = CreateCancellationCostService().Execute(policy.UniqueReference, cancellationDate);
+        CancellationQuote quote = CreateCancellationCostService().Calculate(policy.UniqueReference, cancellationDate);
 
         int totalDays = 365;
         int unusedDays = 265;
@@ -103,7 +105,7 @@ public sealed class CancelPolicyServiceTests
         Policy policy = CreateTestPolicy(startDate);
 
         DateOnly cancellationDate = startDate.AddDays(5);
-        Refund refund = CreateCancelPolicyService().Execute(policy.UniqueReference, cancellationDate);
+        Refund refund = CreateCancelPolicyService().Create(policy.UniqueReference, cancellationDate);
 
         Assert.Equal(policy.Payments[0].Type, refund.Type);
     }
@@ -116,7 +118,7 @@ public sealed class CancelPolicyServiceTests
 
         DateOnly cancellationDate = startDate.AddYears(1).AddDays(1);
 
-        Assert.Throws<DomainRuleException>(() => CreateCancellationCostService().Execute(policy.UniqueReference, cancellationDate));
+        Assert.Throws<DomainRuleException>(() => CreateCancellationCostService().Calculate(policy.UniqueReference, cancellationDate));
     }
 
     [Fact]
@@ -126,9 +128,9 @@ public sealed class CancelPolicyServiceTests
         Policy policy = CreateTestPolicy(startDate);
 
         DateOnly cancellationDate = startDate.AddDays(5);
-        CreateCancelPolicyService().Execute(policy.UniqueReference, cancellationDate);
+        CreateCancelPolicyService().Create(policy.UniqueReference, cancellationDate);
 
-        Assert.Throws<ConflictException>(() => CreateCancelPolicyService().Execute(policy.UniqueReference, cancellationDate));
+        Assert.Throws<DomainRuleException>(() => CreateCancelPolicyService().Create(policy.UniqueReference, cancellationDate));
     }
 
     [Fact]
@@ -138,7 +140,7 @@ public sealed class CancelPolicyServiceTests
         Policy policy = CreateTestPolicy(startDate);
 
         DateOnly cancellationDate = startDate.AddDays(5);
-        CreateCancellationCostService().Execute(policy.UniqueReference, cancellationDate);
+        CreateCancellationCostService().Calculate(policy.UniqueReference, cancellationDate);
 
         Assert.False(policy.IsCancelled);
         Assert.Empty(policy.Refunds);

@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using InsuranceDomain;
+using InsuranceDomain.DataLayer;
 using InsuranceDomain.Services;
 using InsureApi.Middleware;
 
@@ -41,7 +42,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     InsuranceStore store = app.Services.GetRequiredService<InsuranceStore>();
     TimeProvider timeProvider = app.Services.GetRequiredService<TimeProvider>();
-    store.SeedDevelopmentData(timeProvider);
+    DataSeeder dataSeeder = new DataSeeder(store);
+    dataSeeder.SeedDevelopmentData(timeProvider);
 }
 
 app.UseHttpsRedirection();

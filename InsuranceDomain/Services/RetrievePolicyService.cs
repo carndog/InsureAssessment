@@ -1,3 +1,5 @@
+using InsuranceDomain.DataLayer;
+
 namespace InsuranceDomain.Services;
 
 public sealed class RetrievePolicyService(InsuranceStore store)

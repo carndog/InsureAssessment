@@ -11,7 +11,7 @@ public sealed class HouseholdPolicy : Policy
         IEnumerable<Guid> customerIds,
         Guid addressId,
         Payment initialPayment)
-        : base(uniqueReference, startDate, endDate, amount, autoRenew, customerIds, addressId, initialPayment)
+        : base(uniqueReference, startDate, endDate, amount, autoRenew, customerIds, addressId, initialPayment, false)
     {
     }
 }

@@ -1,4 +1,4 @@
-using InsuranceDomain;
+using InsuranceDomain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,11 +19,6 @@ public sealed class ProblemDetailsExceptionHandler(
             EntityNotFoundException =>
                 (StatusCodes.Status404NotFound,
                  "Not Found",
-                 exception.Message),
-
-            ConflictException =>
-                (StatusCodes.Status409Conflict,
-                 "Conflict",
                  exception.Message),
 
             DomainRuleException =>

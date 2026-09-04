@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
+using InsuranceDomain.Exceptions;
 
-namespace InsuranceDomain;
+namespace InsuranceDomain.DataLayer;
 
 public sealed class InsuranceStore
 {
@@ -31,41 +32,7 @@ public sealed class InsuranceStore
     public Policy[] GetPolicies(Guid customerId) =>
         _policies.Values.Where(policy => policy.CustomerIds.Contains(customerId)).ToArray();
 
-    public void SeedDevelopmentData(TimeProvider timeProvider)
-    {
-        DateOnly today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
-        DateOnly endDate = today.AddDays(30);
-        DateOnly startDate = endDate.AddYears(-1);
-
-        Guid customerId = Guid.Parse("11111111-1111-1111-1111-111111111111");
-        Guid addressId = Guid.Parse("22222222-2222-2222-2222-222222222222");
-
-        if (!_customers.ContainsKey(customerId))
-        {
-            Customer customer = new Customer(customerId, "John", "Doe", new DateOnly(1980, 1, 1));
-            Add(customer);
-        }
-
-        if (!_addresses.ContainsKey(addressId))
-        {
-            Address address = new Address(addressId, "123 Main St", null, null, "AB1 2CD");
-            Add(address);
-        }
-
-        string policyReference = "POL-RENEW-DEMO";
-        if (!_policies.ContainsKey(policyReference))
-        {
-            Payment payment = new Payment("PAY-SEED-001", PaymentMethod.Card, 500.00m);
-            HouseholdPolicy policy = new HouseholdPolicy(
-                policyReference,
-                startDate,
-                endDate,
-                500.00m,
-                true,
-                [customerId],
-                addressId,
-                payment);
-            Add(policy);
-        }
-    }
+    public ConcurrentDictionary<Guid, Customer> GetCustomers() => _customers;
+    public ConcurrentDictionary<Guid, Address> GetAddresses() => _addresses;
+    public ConcurrentDictionary<string, Policy> GetPolicies() => _policies;
 }

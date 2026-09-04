@@ -1,11 +1,12 @@
 using InsuranceDomain;
+using InsuranceDomain.DataLayer;
+using InsuranceDomain.Exceptions;
 using InsuranceDomain.Services;
 
 namespace InsureApi.Tests;
 
 public sealed class SellPolicyServiceTests
 {
-    private readonly InsuranceStore _store;
     private readonly CustomerService _customerService;
     private readonly AddressService _addressService;
     private readonly TimeProvider _timeProvider;
@@ -13,11 +14,11 @@ public sealed class SellPolicyServiceTests
 
     public SellPolicyServiceTests()
     {
-        _store = new InsuranceStore();
+        InsuranceStore store = new InsuranceStore();
         _timeProvider = new FixedTimeProvider(new DateOnly(2024, 1, 1));
-        _customerService = new CustomerService(_store, _timeProvider);
-        _addressService = new AddressService(_store);
-        _service = new SellPolicyService(_store, _timeProvider);
+        _customerService = new CustomerService(store);
+        _addressService = new AddressService(store);
+        _service = new SellPolicyService(store, _timeProvider);
     }
 
     [Fact]

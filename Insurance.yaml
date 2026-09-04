@@ -60,12 +60,6 @@ paths:
       operationId: getCustomerPolicies
       parameters:
         - $ref: "#/components/parameters/CustomerId"
-        - name: includeLapsed
-          in: query
-          required: false
-          schema:
-            type: boolean
-            default: true
       responses:
         "200":
           description: Policies found

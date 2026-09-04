@@ -1,7 +1,13 @@
+using InsuranceDomain.Exceptions;
+
 namespace InsuranceDomain;
 
 public abstract class Policy
 {
+    private const int CoolingOffPeriodDays = 14;
+    private const int RenewalWindowDays = 30;
+    private const int PolicyLengthYears = 1;
+
     private readonly Guid[] _customerIds;
     private readonly List<Payment> _payments = [];
     private readonly List<Refund> _refunds = [];
@@ -14,11 +20,11 @@ public abstract class Policy
         bool autoRenew,
         IEnumerable<Guid> customerIds,
         Guid addressId,
-        Payment initialPayment)
+        Payment initialPayment, bool hasClaims)
     {
         if (string.IsNullOrWhiteSpace(uniqueReference))
             throw new DomainRuleException("UniqueReference is required.");
-        if (endDate != startDate.AddYears(1))
+        if (endDate != startDate.AddYears(PolicyLengthYears))
             throw new DomainRuleException("A Policy must be exactly one year in length.");
         if (amount < 0)
             throw new DomainRuleException("Policy Amount cannot be negative.");
@@ -37,6 +43,7 @@ public abstract class Policy
         Amount = amount;
         AutoRenew = autoRenew;
         AddressId = addressId;
+        HasClaims = hasClaims;
         _payments.Add(initialPayment);
     }
 
@@ -58,7 +65,7 @@ public abstract class Policy
         if (cancellationDate > EndDate)
             throw new DomainRuleException("A Policy cannot be cancelled after its EndDate.");
 
-        if (cancellationDate <= StartDate.AddDays(14))
+        if (cancellationDate <= StartDate.AddDays(CoolingOffPeriodDays))
             return Amount;
 
         int totalDays = EndDate.DayNumber - StartDate.DayNumber;
@@ -71,7 +78,7 @@ public abstract class Policy
     public Refund Cancel(DateOnly cancellationDate, string refundReference)
     {
         if (IsCancelled)
-            throw new ConflictException("The Policy has already been cancelled.");
+            throw new DomainRuleException("The Policy has already been cancelled.");
 
         Refund refund = new Refund(
             refundReference,
@@ -91,12 +98,12 @@ public abstract class Policy
         string paymentReference)
     {
         if (IsCancelled)
-            throw new ConflictException("A cancelled Policy cannot be renewed.");
-        if (today < EndDate.AddDays(-30))
-            throw new ConflictException("A Policy cannot be renewed more than 30 days before its EndDate.");
+            throw new DomainRuleException("A cancelled Policy cannot be renewed.");
+        if (today < EndDate.AddDays(-RenewalWindowDays))
+            throw new DomainRuleException("A Policy cannot be renewed more than 30 days before its EndDate.");
         if (today > EndDate)
-            throw new ConflictException("A Policy cannot be renewed after its EndDate.");
-        if (newEndDate != newStartDate.AddYears(1))
+            throw new DomainRuleException("A Policy cannot be renewed after its EndDate.");
+        if (newEndDate != newStartDate.AddYears(PolicyLengthYears))
             throw new DomainRuleException("A renewed Policy must be exactly one year in length.");
         if (newAmount < 0)
             throw new DomainRuleException("Policy Amount cannot be negative.");
@@ -108,7 +115,7 @@ public abstract class Policy
         if (!AutoRenew)
             return null;
 
-        Payment payment = new Payment(paymentReference, _payments[^1].Type, newAmount);
+        Payment payment = new Payment(paymentReference, _payments.Last().Type, newAmount);
         _payments.Add(payment);
         return payment;
     }

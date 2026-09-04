@@ -1,4 +1,6 @@
 using InsuranceDomain;
+using InsuranceDomain.DataLayer;
+using InsuranceDomain.Exceptions;
 using InsuranceDomain.Services;
 
 namespace InsureApi.Tests;
@@ -14,7 +16,7 @@ public sealed class RenewPolicyServiceTests
     {
         _store = new InsuranceStore();
         _timeProvider = new FixedTimeProvider(new DateOnly(2024, 1, 1));
-        _customerService = new CustomerService(_store, _timeProvider);
+        _customerService = new CustomerService(_store);
         _addressService = new AddressService(_store);
     }
 
@@ -59,7 +61,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddYears(1);
         DateOnly currentDate = startDate.AddDays(340);
 
-        RenewalResult result = CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m);
+        RenewalResult result = CreateRenewalService(currentDate).Create(policy.UniqueReference, newStartDate, newEndDate, 600.00m);
 
         Assert.Equal(newStartDate, result.Policy.StartDate);
         Assert.Equal(newEndDate, result.Policy.EndDate);
@@ -76,7 +78,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddYears(1);
         DateOnly currentDate = startDate.AddDays(300);
 
-        Assert.Throws<ConflictException>(() => CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
+        Assert.Throws<DomainRuleException>(() => CreateRenewalService(currentDate).Create(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
     }
 
     [Fact]
@@ -89,7 +91,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddYears(1);
         DateOnly currentDate = startDate.AddDays(400);
 
-        Assert.Throws<ConflictException>(() => CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
+        Assert.Throws<DomainRuleException>(() => CreateRenewalService(currentDate).Create(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
     }
 
     [Fact]
@@ -102,7 +104,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddDays(100);
         DateOnly currentDate = startDate.AddDays(340);
 
-        Assert.Throws<DomainRuleException>(() => CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
+        Assert.Throws<DomainRuleException>(() => CreateRenewalService(currentDate).Create(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
     }
 
     [Fact]
@@ -117,7 +119,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddYears(1);
         DateOnly currentDate = startDate.AddDays(340);
 
-        Assert.Throws<ConflictException>(() => CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
+        Assert.Throws<DomainRuleException>(() => CreateRenewalService(currentDate).Create(policy.UniqueReference, newStartDate, newEndDate, 600.00m));
     }
 
     [Fact]
@@ -130,7 +132,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddYears(1);
         DateOnly currentDate = startDate.AddDays(340);
 
-        RenewalResult result = CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m);
+        RenewalResult result = CreateRenewalService(currentDate).Create(policy.UniqueReference, newStartDate, newEndDate, 600.00m);
 
         Assert.NotNull(result.Payment);
         Assert.Equal(600.00m, result.Payment.Amount);
@@ -147,7 +149,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddYears(1);
         DateOnly currentDate = startDate.AddDays(340);
 
-        RenewalResult result = CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m);
+        RenewalResult result = CreateRenewalService(currentDate).Create(policy.UniqueReference, newStartDate, newEndDate, 600.00m);
 
         Assert.Null(result.Payment);
         Assert.Single(policy.Payments);
@@ -163,7 +165,7 @@ public sealed class RenewPolicyServiceTests
         DateOnly newEndDate = newStartDate.AddYears(1);
         DateOnly currentDate = startDate.AddDays(340);
 
-        RenewalResult result = CreateRenewalService(currentDate).Execute(policy.UniqueReference, newStartDate, newEndDate, 600.00m);
+        RenewalResult result = CreateRenewalService(currentDate).Create(policy.UniqueReference, newStartDate, newEndDate, 600.00m);
 
         Assert.NotNull(result.Payment);
         Assert.Equal(policy.Payments[0].Type, result.Payment.Type);

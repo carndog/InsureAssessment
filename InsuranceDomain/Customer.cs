@@ -1,3 +1,5 @@
+using InsuranceDomain.Exceptions;
+
 namespace InsuranceDomain;
 
 public sealed class Customer

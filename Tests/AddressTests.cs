@@ -1,4 +1,5 @@
 using InsuranceDomain;
+using InsuranceDomain.Exceptions;
 
 namespace InsureApi.Tests;
 

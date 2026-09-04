@@ -16,21 +16,21 @@ public sealed class PolicyAdministrationController(
     [HttpPost("{uniqueReference}/cancellation-quotes")]
     public ActionResult<CancellationQuoteResponse> CalculateCancellation(string uniqueReference, CalculateCancellationRequest request)
     {
-        CancellationQuote quote = calculateCancellationCostService.Execute(uniqueReference, request.CancellationDate);
+        CancellationQuote quote = calculateCancellationCostService.Calculate(uniqueReference, request.CancellationDate);
         return Ok(quote.ToResponse());
     }
 
     [HttpPut("{uniqueReference}/cancellation")]
     public ActionResult<RefundResponse> Cancel(string uniqueReference, CancelPolicyRequest request)
     {
-        Refund refund = cancelPolicyService.Execute(uniqueReference, request.CancellationDate);
+        Refund refund = cancelPolicyService.Create(uniqueReference, request.CancellationDate);
         return Ok(refund.ToResponse());
     }
 
     [HttpPost("{uniqueReference}/renewals")]
     public ActionResult<PolicyResponse> Renew(string uniqueReference, RenewPolicyRequest request)
     {
-        RenewalResult result = renewPolicyService.Execute(uniqueReference, request.StartDate, request.EndDate, request.Amount);
+        RenewalResult result = renewPolicyService.Create(uniqueReference, request.StartDate, request.EndDate, request.Amount);
         return CreatedAtAction(
             actionName: nameof(PoliciesController.Get),
             controllerName: "Policies",
