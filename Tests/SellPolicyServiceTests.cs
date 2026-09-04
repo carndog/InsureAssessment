@@ -14,7 +14,7 @@ public sealed class SellPolicyServiceTests
     public SellPolicyServiceTests()
     {
         _store = new InsuranceStore();
-        _timeProvider = TimeProvider.System;
+        _timeProvider = new FixedTimeProvider(new DateOnly(2024, 1, 1));
         _customerService = new CustomerService(_store, _timeProvider);
         _addressService = new AddressService(_store);
         _service = new SellPolicyService(_store, _timeProvider);
@@ -354,7 +354,7 @@ public sealed class SellPolicyServiceTests
         DateOnly endDate = startDate.AddYears(1);
 
         Guid customerId = Guid.NewGuid();
-        DateOnly dateOfBirth = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime.AddYears(-15));
+        DateOnly dateOfBirth = today.AddYears(-15);
         _customerService.Create(customerId, "John", "Doe", dateOfBirth);
 
         Guid addressId = Guid.NewGuid();

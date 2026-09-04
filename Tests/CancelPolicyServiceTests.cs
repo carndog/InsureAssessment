@@ -13,7 +13,7 @@ public sealed class CancelPolicyServiceTests
     public CancelPolicyServiceTests()
     {
         _store = new InsuranceStore();
-        _timeProvider = TimeProvider.System;
+        _timeProvider = new FixedTimeProvider(new DateOnly(2024, 1, 1));
         _customerService = new CustomerService(_store, _timeProvider);
         _addressService = new AddressService(_store);
     }
