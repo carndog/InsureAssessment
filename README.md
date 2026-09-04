@@ -49,12 +49,6 @@ The solution includes independent HTTP scenario files in the `HttpFlows` directo
 - **03-policy-renewal.http** - Renews the development-seeded policy (POL-RENEW-DEMO)
 - **04-informative-errors.http** - Demonstrates error responses for invalid requests
 
-### Important Notes
-
-- Restart the API before re-running the renewal scenario because persistence is deliberately in memory
-- The cancellation scenario creates its own policy and should be run from the beginning when repeated
-- Each scenario is self-contained and does not depend on variables from other files
-
 ## API Endpoints
 
 ### Customer Management
@@ -121,7 +115,10 @@ The solution includes independent HTTP scenario files in the `HttpFlows` directo
 
 ## Architecture
 
-- **InsuranceDomain** - Domain entities, aggregates, and use-case services
+- **InsuranceDomain** - Domain entities (Customer, Address, Policy, Payment, Refund)
+  - **Exceptions** - Domain exceptions (DomainRuleException, EntityNotFoundException)
+  - **DataLayer** - Data storage (InsuranceStore, DataSeeder)
+  - **Services** - Domain services (CustomerService, AddressService, SellPolicyService, etc.)
 - **InsureApi** - Web API with controllers, contracts, and mapping
 - **InsureApi.Tests** - xUnit tests for domain rules and services
 
