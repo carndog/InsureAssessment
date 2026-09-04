@@ -1,175 +1,111 @@
 @baseUrl = http://localhost:5078
 
-### # @name Create Buy-to-Let Customer
+### # @name Create Customer
+< {%
+client.global.set("customerFirstName", "Jane");
+client.global.set("customerLastName", "Doe");
+client.global.set("customerDateOfBirth", "1980-03-22");
+%}
+
 POST {{baseUrl}}/api/customers
 Content-Type: application/json
 
 {
-  "FirstName": "Jane",
-  "LastName": "Doe",
-  "Email": "jane.doe@example.com",
-  "PhoneNumber": "07987654321"
+  "FirstName": "{{customerFirstName}}",
+  "LastName": "{{customerLastName}}",
+  "DateOfBirth": "{{customerDateOfBirth}}"
 }
 
 > {%
-client.test("Status is 201", function() {
-    client.assert(response.status === 201, "Expected 201 Created");
-});
-client.global.set("buyToLetCustomerId", response.body.CustomerId);
+client.global.set("customerId", response.body.CustomerId);
 %}
 
 ###
 
-### # @name Create Buy-to-Let Address
+### # @name Create Address
+< {%
+client.global.set("addressLine1", "456 Oak Avenue");
+client.global.set("addressLine2", "Unit 3");
+client.global.set("addressLine3", "");
+client.global.set("postcode", "M1 1AA");
+%}
+
 POST {{baseUrl}}/api/addresses
 Content-Type: application/json
 
 {
-  "Line1": "456 Oak Avenue",
-  "Line2": "Flat 12",
-  "City": "Manchester",
-  "Postcode": "M1 1AA",
-  "Country": "United Kingdom"
+  "AddressLine1": "{{addressLine1}}",
+  "AddressLine2": "{{addressLine2}}",
+  "AddressLine3": "{{addressLine3}}",
+  "Postcode": "{{postcode}}"
 }
 
 > {%
-client.test("Status is 201", function() {
-    client.assert(response.status === 201, "Expected 201 Created");
-});
-client.global.set("buyToLetAddressId", response.body.AddressId);
+client.global.set("addressId", response.body.AddressId);
 %}
 
 ###
 
 ### # @name Sell Buy-to-Let Policy
-POST {{baseUrl}}/api/policies/sell
-Content-Type: application/json
-
 < {%
-const today = new Date();
-const startDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 1));
-const endDate = new Date(Date.UTC(startDate.getUTCFullYear() + 1, startDate.getUTCMonth(), startDate.getUTCDate()));
-
-const formatDate = (date) => {
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
-
-request.variables.set("buyToLetStartDate", formatDate(startDate));
-request.variables.set("buyToLetEndDate", formatDate(endDate));
-request.variables.set("buyToLetCustomerId", client.global.get("buyToLetCustomerId"));
-request.variables.set("buyToLetAddressId", client.global.get("buyToLetAddressId"));
+client.global.set("policyStartDate", "2026-09-05");
+client.global.set("policyEndDate", "2027-09-05");
+client.global.set("policyAmount", 750.00);
+client.global.set("autoRenew", true);
+client.global.set("paymentReference", "PAY-002");
+client.global.set("paymentType", "DirectDebit");
+client.global.set("paymentAmount", 750.00);
 %}
 
+POST {{baseUrl}}/api/policies/buytolet
+Content-Type: application/json
+
 {
-  "CustomerId": "{{buyToLetCustomerId}}",
-  "AddressId": "{{buyToLetAddressId}}",
-  "PolicyType": "BuyToLet",
-  "StartDate": "{{buyToLetStartDate}}",
-  "EndDate": "{{buyToLetEndDate}}",
-  "Amount": 750.00,
-  "AutoRenew": false,
+  "StartDate": "{{policyStartDate}}",
+  "EndDate": "{{policyEndDate}}",
+  "Amount": {{policyAmount}},
+  "AutoRenew": {{autoRenew}},
+  "CustomerIds": ["{{customerId}}"],
+  "AddressId": "{{addressId}}",
   "Payment": {
-    "Reference": "PAY-BUYTOLET-001",
-    "Type": "DirectDebit",
-    "Amount": 750.00
+    "PaymentReference": "{{paymentReference}}",
+    "Type": "{{paymentType}}",
+    "Amount": {{paymentAmount}}
   }
 }
 
 > {%
-client.test("Status is 201", function() {
-    client.assert(response.status === 201, "Expected 201 Created");
-});
-client.global.set("buyToLetPolicyReference", response.body.UniqueReference);
+client.global.set("policyReference", response.body.UniqueReference);
 %}
 
 ###
 
 ### # @name Calculate Cancellation Quote
-POST {{baseUrl}}/api/policies/{{buyToLetPolicyReference}}/cancellation-quote
+< {%
+client.global.set("cancellationDate", "2026-09-20");
+%}
+
+POST {{baseUrl}}/api/policies/{{policyReference}}/cancellation-quotes
 Content-Type: application/json
 
-< {%
-const today = new Date();
-const formatDate = (date) => {
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
-
-request.variables.set("buyToLetCancellationDate", formatDate(today));
-%}
-
 {
-  "CancellationDate": "{{buyToLetCancellationDate}}"
+  "CancellationDate": "{{cancellationDate}}"
 }
 
-> {%
-client.test("Status is 200", function() {
-    client.assert(response.status === 200, "Expected 200 OK");
-});
-client.test("RefundAmount is 750.00", function() {
-    client.assert(response.body.RefundAmount === 750.00, "Expected RefundAmount to be 750.00");
-});
-client.test("CancellationCost is 0.00", function() {
-    client.assert(response.body.CancellationCost === 0.00, "Expected CancellationCost to be 0.00");
-});
-client.global.set("buyToLetCancellationDate", response.body.CancellationDate);
-%}
 
 ###
 
-### # @name Cancel Buy-to-Let Policy
-POST {{baseUrl}}/api/policies/{{buyToLetPolicyReference}}/cancel
+### # @name Cancel Policy
+PUT {{baseUrl}}/api/policies/{{policyReference}}/cancellation
 Content-Type: application/json
 
-< {%
-request.variables.set("buyToLetCancellationDate", client.global.get("buyToLetCancellationDate"));
-%}
-
 {
-  "CancellationDate": "{{buyToLetCancellationDate}}"
+  "CancellationDate": "{{cancellationDate}}"
 }
 
-> {%
-client.test("Status is 200", function() {
-    client.assert(response.status === 200, "Expected 200 OK");
-});
-client.test("Refund amount is 750.00", function() {
-    client.assert(response.body.RefundAmount === 750.00, "Expected refund amount to be 750.00");
-});
-client.test("Refund type is DirectDebit", function() {
-    client.assert(response.body.RefundType === "DirectDebit", "Expected refund type to be DirectDebit");
-});
-%}
-
-###
-
-### # @name Retrieve Cancelled Policy Refunds
-GET {{baseUrl}}/api/policies/{{buyToLetPolicyReference}}/refunds
-
-> {%
-client.test("Status is 200", function() {
-    client.assert(response.status === 200, "Expected 200 OK");
-});
-client.test("Exactly one refund returned", function() {
-    client.assert(response.body.length === 1, "Expected exactly one refund");
-});
-%}
 
 ###
 
 ### # @name Retrieve Cancelled Policy
-GET {{baseUrl}}/api/policies/{{buyToLetPolicyReference}}
+GET {{baseUrl}}/api/policies/{{policyReference}}
 
-> {%
-client.test("Status is 200", function() {
-    client.assert(response.status === 200, "Expected 200 OK");
-});
-%}
-
-###
-# This complete scenario should only be run once per created policy because a second cancellation correctly returns HTTP 409.

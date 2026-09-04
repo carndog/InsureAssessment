@@ -20,7 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\InsureApi.csproj" />
     <ProjectReference Include="..\InsuranceDomain\InsuranceDomain.csproj" />
   </ItemGroup>
 

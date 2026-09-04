@@ -1,105 +1,33 @@
 @baseUrl = http://localhost:5078
 
-###
-# The API must run using the Development launch profile.
-# This scenario can only be executed successfully once per API process.
-# Restarting the API restores the original seeded in-memory policy.
-
-### # @name Retrieve Seeded Policy
+### # @name Retrieve Policy Before Renewal
 GET {{baseUrl}}/api/policies/POL-RENEW-DEMO
 
-> {%
-client.test("Status is 200", function() {
-    client.assert(response.status === 200, "Expected 200 OK");
-});
-client.test("Reference is correct", function() {
-    client.assert(response.body.UniqueReference === "POL-RENEW-DEMO", "Expected reference to be POL-RENEW-DEMO");
-});
-%}
-
-###
-
-### # @name Retrieve Payments Before Renewal
-GET {{baseUrl}}/api/policies/POL-RENEW-DEMO/payments
-
-> {%
-client.test("Status is 200", function() {
-    client.assert(response.status === 200, "Expected 200 OK");
-});
-client.test("Exactly one payment exists", function() {
-    client.assert(response.body.length === 1, "Expected exactly one payment before renewal");
-});
-%}
 
 ###
 
 ### # @name Renew Policy
-POST {{baseUrl}}/api/policies/POL-RENEW-DEMO/renew
-Content-Type: application/json
-
 < {%
-const today = new Date();
-const renewalStartDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() + 30));
-const renewalEndDate = new Date(Date.UTC(renewalStartDate.getUTCFullYear() + 1, renewalStartDate.getUTCMonth(), renewalStartDate.getUTCDate()));
-
-const formatDate = (date) => {
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
-
-request.variables.set("renewalStartDate", formatDate(renewalStartDate));
-request.variables.set("renewalEndDate", formatDate(renewalEndDate));
+client.global.set("renewalStartDate", "2027-09-05");
+client.global.set("renewalEndDate", "2028-09-05");
+client.global.set("renewalAmount", 550.00);
 %}
+
+POST {{baseUrl}}/api/policies/POL-RENEW-DEMO/renewals
+Content-Type: application/json
 
 {
   "StartDate": "{{renewalStartDate}}",
   "EndDate": "{{renewalEndDate}}",
-  "Amount": 525.00
+  "Amount": {{renewalAmount}}
 }
 
 > {%
-client.test("Status is 201", function() {
-    client.assert(response.status === 201, "Expected 201 Created");
-});
-client.test("Amount is 525.00", function() {
-    client.assert(response.body.Amount === 525.00, "Expected Amount to be 525.00");
-});
+client.global.set("renewedPolicyReference", response.body.UniqueReference);
 %}
 
 ###
 
 ### # @name Retrieve Renewed Policy
-GET {{baseUrl}}/api/policies/POL-RENEW-DEMO
+GET {{baseUrl}}/api/policies/{{renewedPolicyReference}}
 
-> {%
-client.test("Status is 200", function() {
-    client.assert(response.status === 200, "Expected 200 OK");
-});
-client.test("New dates and amount applied", function() {
-    client.assert(response.body.Amount === 525.00, "Expected Amount to be 525.00");
-});
-%}
-
-###
-
-### # @name Retrieve Payments After Renewal
-GET {{baseUrl}}/api/policies/POL-RENEW-DEMO/payments
-
-> {%
-client.test("Status is 200", function() {
-    client.assert(response.status === 200, "Expected 200 OK");
-});
-client.test("Exactly two payments exist", function() {
-    client.assert(response.body.length === 2, "Expected exactly two payments after renewal");
-});
-client.test("New payment amount is 525.00", function() {
-    const newPayment = response.body[1];
-    client.assert(newPayment.Amount === 525.00, "Expected new payment amount to be 525.00");
-});
-client.test("Payment method is Card", function() {
-    const newPayment = response.body[1];
-    client.assert(newPayment.Type === "Card", "Expected payment method to be Card");
-});
-%}

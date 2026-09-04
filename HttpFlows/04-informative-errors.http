@@ -1,15 +1,21 @@
 @baseUrl = http://localhost:5078
 
 ### # @name Create Address with Invalid Postcode
+< {%
+client.global.set("invalidAddressLine1", "123 Main Street");
+client.global.set("invalidAddressLine2", "Apt 4B");
+client.global.set("invalidAddressLine3", "Flat 2");
+client.global.set("invalidPostcode", "SW1A1AA123456789");
+%}
+
 POST {{baseUrl}}/api/addresses
 Content-Type: application/json
 
 {
-  "Line1": "123 Main Street",
-  "Line2": "Apt 4B",
-  "City": "London",
-  "Postcode": "SW1A1AA123456789",
-  "Country": "United Kingdom"
+  "AddressLine1": "{{invalidAddressLine1}}",
+  "AddressLine2": "{{invalidAddressLine2}}",
+  "AddressLine3": "{{invalidAddressLine3}}",
+  "Postcode": "{{invalidPostcode}}"
 }
 
 > {%
