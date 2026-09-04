@@ -120,7 +120,7 @@ The solution includes independent HTTP scenario files in the `HttpFlows` directo
   - **DataLayer** - Data storage (InsuranceStore, DataSeeder)
   - **Services** - Domain services (CustomerService, AddressService, SellPolicyService, etc.)
 - **InsureApi** - Web API with controllers, contracts, and mapping
-- **InsureApi.Tests** - xUnit tests for domain rules and services
+- **InsureApi.Tests** - NUnit tests for domain rules and services
 
 The implementation follows domain-driven design principles with:
 - In-memory store (no database)
